@@ -21,5 +21,6 @@ public class PanicLogController {
     public void location(@RequestBody PanicLogRequest request){
 
         locationLogService.saveLocationLog(request);
+        //hghg
     }
 }

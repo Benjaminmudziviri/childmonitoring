@@ -24,3 +24,4 @@ public class AppUsage {
     private DeviceStats deviceStats;
 }
 
+

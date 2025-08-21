@@ -6,6 +6,7 @@ import com.radical.childmonitoring.paniclog.dto.PanicLogRequest;
 import com.radical.childmonitoring.paniclog.entity.PanicLocationLog;
 import com.radical.childmonitoring.paniclog.repository.PanicLocationLogRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -17,6 +18,7 @@ public class PanicLocationLogServiceImpl implements PanicLocationLogService {
 
     private final PanicLocationLogRepository logRepository;
     private final PanicService panicService;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @Override
     public PanicLocationLog saveLocationLog(PanicLogRequest request) {
@@ -29,9 +31,16 @@ public class PanicLocationLogServiceImpl implements PanicLocationLogService {
                 .latitude(request.latitude())
                 .panic(panic)
                 .build();
-        return logRepository.save(log);
 
+        PanicLocationLog saved = logRepository.save(log);
+
+        //Send update to Android via WebSocket
+        messagingTemplate.convertAndSend("/topic/panic-logs", saved);
+
+        return saved;
     }
+
+
 
     @Override
     public List<PanicLocationLog> getLogsByPanicId(Long panicId) {
